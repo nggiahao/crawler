@@ -1,12 +1,11 @@
-# Very short description of the package
+# Laravel Crawler
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/nggiahao/crawler.svg?style=flat-square)](https://packagist.org/packages/nggiahao/crawler)
-[![Build Status](https://img.shields.io/travis/nggiahao/crawler/master.svg?style=flat-square)](https://travis-ci.org/nggiahao/crawler)
-[![Quality Score](https://img.shields.io/scrutinizer/g/nggiahao/crawler.svg?style=flat-square)](https://scrutinizer-ci.com/g/nggiahao/crawler)
 [![Total Downloads](https://img.shields.io/packagist/dt/nggiahao/crawler.svg?style=flat-square)](https://packagist.org/packages/nggiahao/crawler)
 
-This is where your description should go. Try and limit it to a paragraph or two, and maybe throw in a mention of what PSRs you support to avoid any confusion with users and contributors.
+Package này có nhiêm vụ thu thập dữ liệu từ các website khác sử dụng Guzzle, Phantomjs hay Puppeteer.
 
+Nó sử dụng Amphp để có thể chạy nhiều process 1 lúc.
 ## Installation
 
 You can install the package via composer:
@@ -14,11 +13,68 @@ You can install the package via composer:
 ```bash
 composer require nggiahao/crawler
 ```
+```bash
+php artisan vendor:publish --provider="Nggiahao\Crawler\CrawlerServiceProvider" --tag="config"
+php artisan vendor:publish --provider="Nggiahao\Crawler\CrawlerServiceProvider" --tag="migrations"
+php artisan migrate
+```
+
+Nếu bạn sử dụng Phantomjs hay Puppeteer thì hãy cài đặt chúng.
 
 ## Usage
-
+### Step 1: Tạo Site
 ``` php
-// Usage description here
+use Nggiahao\Crawler\SitesConfig\SiteAbstract;
+
+class W123job extends SiteAbstract {
+
+    public function rootUrl(): string
+    {
+        return 'https://123job.vn';
+    }
+
+    public function startUrls(): array {
+        return [
+            "https://123job.vn",
+        ];
+    }
+    
+    public function shouldCrawl( $url ) {
+        return preg_match( "/^https:\/\/123job\.vn\/viec-lam\//", $url) || preg_match( "/^https:\/\/123job\.vn\/company\//", $url);
+    }
+    
+    public function shouldGetData( $url ) {
+        return preg_match( "/\/company\//", $url);
+    }
+
+    public function getInfoFromCrawler(Crawler $dom_crawler)
+    {
+        return parent::getInfoFromCrawler($dom_crawler);
+    }
+}
+```
+- `startUrls()` trả về mảng các url sẽ được sử dụng trong lần chạy đầu tiên 
+- `shouldCrawl()` định nghĩa như nào là 1 url cần phi vào
+- `shouldGetData()` định nghĩa như nào là 1 url cần lấy data
+- `getInfoFromCrawler()` hàm này định nghĩa viêc lấy data như thế nào? (sử dụng [DomCrawler](https://symfony.com/doc/current/components/dom_crawler.html))
+
+### Step 2: Khai báo site
+`config/crawler.php`
+```
+'site_config' => [
+        W123job::class
+    ]
+```
+### Step 3: Start
+```php
+    $sites = ['W123job'];
+    $config = [
+        'concurrency' => 10,
+        'proxy'       => null,
+        'browser'     => 'guzzle',
+    ];
+    $reset = false; //reset queue
+    app(\Nggiahao\Crawler\Crawler::class)->run($sites, $config, $reset);
 ```
 
 ### Testing
@@ -47,7 +103,3 @@ If you discover any security related issues, please email giahao9899@gmail.com i
 ## License
 
 The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
-
-## Laravel Package Boilerplate
-
-This package was generated using the [Laravel Package Boilerplate](https://laravelpackageboilerplate.com).
