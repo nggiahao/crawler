@@ -4,3 +4,4 @@ docs
 vendor
 .idea
 coverage
+.phpunit.result.cache
