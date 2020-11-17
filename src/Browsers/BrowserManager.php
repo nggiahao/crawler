@@ -2,21 +2,28 @@
 
 namespace Nggiahao\Crawler\Browsers;
 
+use Nggiahao\Crawler\Exception\NotFoundBrowserDriver;
+
 class BrowserManager {
     
-    protected static $proxy = [];
+    /** @var array|string */
+    protected static $proxy;
+    
+    /** @var int $timeout */
     protected static $timeout;
+    
+    /** @var array $drivers */
     protected static $drivers = [];
     
     
     /**
-     * @param $driver
+     * @param string $driver
      *
      * @return BrowserInterface
-     * @throws \Exception
+     * @throws NotFoundBrowserDriver
      */
-    public static function get($driver = "guzzle"){
-        if(!isset( self::$drivers[$driver])){
+    public static function get(string $driver = "guzzle"){
+        if(empty(self::$drivers[$driver])){
             self::$drivers[$driver] = self::makeBrowser( $driver );
             if(!empty( self::$proxy)){
                 self::$drivers[$driver]->setProxy(self::$proxy);
@@ -29,29 +36,24 @@ class BrowserManager {
     }
     
     /**
-     * @param $driver
+     * @param string $driver
      *
      * @return BrowserInterface
-     * @throws \Exception
+     * @throws NotFoundBrowserDriver
      */
-    protected static function makeBrowser($driver = "guzzle", $session = ''){
+    protected static function makeBrowser(string $driver = "chrome") {
         switch ($driver){
-            case "phantomjs":
-                return new PhantomJsLocal();
-                break;
             case "chrome":
                 return new BrowserShot();
-                break;
             case "guzzle":
                 return new Guzzle();
-                break;
             default:
-                throw new \Exception("No browser match with driver " . $driver);
+                throw new NotFoundBrowserDriver("No browser match with driver " . $driver);
         }
     }
     
-    public static function setProxies(array $proxies){
-        self::$proxy = $proxies;
+    public static function setProxy(array $proxy){
+        self::$proxy = $proxy;
     }
     
     public static function setTimeout($timeout){

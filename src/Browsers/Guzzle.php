@@ -3,11 +3,23 @@ namespace Nggiahao\Crawler\Browsers;
 
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Cookie\CookieJar;
 
 class Guzzle implements BrowserInterface {
     
+    /**
+     * @var Client
+     */
     protected $client;
+    
+    /**
+     * @var CookieJar
+     */
     protected $cookies;
+    
+    /**
+     * @var array
+     */
     protected $options = [];
 
     /**
@@ -16,12 +28,12 @@ class Guzzle implements BrowserInterface {
      * @param Client|null $client
      * @param bool $cookies
      */
-    public function __construct( ?Client $client = null , $cookies = true) {
+    public function __construct( ?Client $client = null , bool $cookies = true) {
         if($client){
             $this->client = $client;
         }else{
             if($cookies){
-                $jar = new \GuzzleHttp\Cookie\CookieJar();
+                $jar = new CookieJar();
                 $this->cookies = $jar;
             }
             $this->client = new Client([
@@ -33,19 +45,38 @@ class Guzzle implements BrowserInterface {
         }
     }
     
-    
-    public function getHtml( $url, $headers = [] ) {
+    /**
+     * @param string $url
+     * @param array $headers
+     *
+     * @return mixed|string
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function getHtml( string $url, array $headers = [] ) {
         $response = $this->client->get( $url, [
             'headers' => $headers
         ] + $this->options );
+        
         return $response->getBody()->getContents();
     }
     
-    public function setProxy( $proxies ) {
-        $this->options['proxy'] = $proxies[0];
+    /**
+     * @param array|string $proxy
+     *
+     * @return Guzzle
+     */
+    public function setProxy( $proxy ) {
+        $this->options['proxy'] = $proxy;
+        return $this;
     }
     
+    /**
+     * @param int $timeout
+     *
+     * @return Guzzle
+     */
     public function setTimeout( $timeout ) {
         $this->options['timeout'] = $timeout;
+        return $this;
     }
 }

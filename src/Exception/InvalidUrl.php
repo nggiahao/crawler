@@ -2,11 +2,10 @@
 
 namespace Nggiahao\Crawler\Exception;
 
-use Exception;
 use Psr\Http\Message\UriInterface;
 use Nggiahao\Crawler\CrawlUrl;
 
-class InvalidUrl extends Exception
+class InvalidUrl extends \Exception
 {
     public static function unexpectedType($url)
     {

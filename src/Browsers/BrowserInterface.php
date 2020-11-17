@@ -4,10 +4,29 @@ namespace Nggiahao\Crawler\Browsers;
 
 interface BrowserInterface {
     
-    public function setProxy($proxies);
+    /**
+     * set proxy
+     * @param array|string $proxy
+     *
+     * @return mixed
+     */
+    public function setProxy($proxy);
     
-    public function setTimeout($timeout);
+    /**
+     * set timeout
+     * @param int $timeout
+     *
+     * @return mixed
+     */
+    public function setTimeout(int $timeout);
     
-    public function getHtml($url, $headers = []);
+    /**
+     * get html
+     * @param string $url
+     * @param array $headers
+     *
+     * @return mixed
+     */
+    public function getHtml(string $url, array $headers = []);
     
 }

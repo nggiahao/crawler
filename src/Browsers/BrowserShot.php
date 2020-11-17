@@ -25,11 +25,29 @@ class BrowserShot implements BrowserInterface {
         return $chrome->bodyHtml();
     }
     
-    public function setProxy( $proxies ) {
-        $this->proxy = $proxies[0];
+    /**
+     * @param array|string $proxy
+     *
+     * @return BrowserShot
+     */
+    public function setProxy( $proxy ) {
+        if (is_array($proxy)) {
+            $this->proxy = $proxy[0];
+        } else {
+            $this->proxy = $proxy;
+        }
+        
+        return $this;
     }
     
+    /**
+     * @param int $timeout
+     *
+     * @return BrowserShot
+     */
     public function setTimeout( $timeout ) {
         $this->timeout = $timeout;
+        
+        return $this;
     }
 }

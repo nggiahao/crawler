@@ -45,7 +45,7 @@ class Crawler
      */
     public function run($sites, array $config = [], $reset = false) {
         $sites = $this->getSitesConfig($sites);
-        $this->config = array_merge($config, $this->config);
+        $this->config = array_merge($this->config, $config);
 
         $this->init($sites, $reset);
 
